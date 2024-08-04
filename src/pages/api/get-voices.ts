@@ -10,8 +10,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      console.log(API_KEY);
-
       const response = await fetch(API_URL, {
         method: 'GET',
         headers: {
