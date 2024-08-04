@@ -3,13 +3,13 @@ import { put, del, list } from '@vercel/blob';
 
 const API_URL = 'https://api.elevenlabs.io/v1/text-to-speech';
 const API_KEY = process.env.ELEVENLABS_API_KEY;
-const VERCEL_BLOB_TOKEN = process.env.VERCEL_BLOB_KEY;
+const VERCEL_BLOB_KEY_READ_WRITE_TOKEN = process.env.VERCEL_BLOB_KEY_READ_WRITE_TOKEN;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { voiceId, text } = req.body;
 
-    if (!API_KEY || !VERCEL_BLOB_TOKEN) {
+    if (!API_KEY || !VERCEL_BLOB_KEY_READ_WRITE_TOKEN) {
       return res.status(500).json({ message: 'Missing API key or Vercel blob token' });
     }
 
@@ -40,16 +40,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const audioBlob = await response.blob();
       const buffer = Buffer.from(await audioBlob.arrayBuffer());
 
-      const { blobs } = await list({ token: VERCEL_BLOB_TOKEN });
+      const { blobs } = await list({ token: VERCEL_BLOB_KEY_READ_WRITE_TOKEN });
       if (blobs.length > 0) {
-        await del(blobs.map(blob => blob.url), { token: VERCEL_BLOB_TOKEN });
+        await del(blobs.map(blob => blob.url), { token: VERCEL_BLOB_KEY_READ_WRITE_TOKEN });
       }
 
       const blobName = `audio-${Date.now()}.mp3`;
 
       const blobResponse = await put(blobName, buffer, {
         access: 'public',
-        token: VERCEL_BLOB_TOKEN
+        token: VERCEL_BLOB_KEY_READ_WRITE_TOKEN
       });
 
       res.status(200).json({ url: blobResponse.url });
