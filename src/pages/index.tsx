@@ -111,7 +111,7 @@ const Page = () => {
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Enter text here"
+        placeholder="Insira seu texto aqui "
         rows={2}
         cols={50}
         className="text-area"
@@ -122,7 +122,7 @@ const Page = () => {
           <div className="voice-info">
             <strong>{voice.name}</strong>
             <div className="voice-labels">
-              <div>Categoria: {voice.category}</div>
+              <div>Category: {voice.category}</div>
               <div>Gender: {voice.labels.gender}</div>
               <div>Accent: {voice.labels.accent}</div>
               <div>Age: {voice.labels.age}</div>
@@ -143,7 +143,7 @@ const Page = () => {
             onClick={() => handlePlayPausePreview(voice.voice_id)}
             className="button"
           >
-            {playingPreviewId === voice.voice_id ? 'Pause Teste' : 'Play Teste'}
+            {playingPreviewId === voice.voice_id ? 'Pause Preview' : 'Play Preview'}
           </button>
           <audio
             ref={(el) => { previewAudioRefs.current[voice.voice_id] = el; }}
