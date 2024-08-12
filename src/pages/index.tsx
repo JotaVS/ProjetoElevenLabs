@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import { Card, Badge, Button, Group, Text, Container, Textarea, Paper } from '@mantine/core';
+import VoiceFilters from './VoiceFilters';
+import { useVoiceFilters } from './useVoiceFilters';
 
-interface Voice {
+export interface Voice {
   voice_id: string;
   name: string;
   description: string | null;
@@ -95,9 +98,11 @@ const Page = () => {
       }
 
       const data = await response.json();
-      audio.src = data.url;
-      audio.play();
-      setIsPlaying(true);
+      if (audio) {
+        audio.src = data.url;
+        audio.play();
+        setIsPlaying(true);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -105,60 +110,93 @@ const Page = () => {
     }
   };
 
+  const { filters, setFilters, filteredVoices, filterValues } = useVoiceFilters(voices);
 
   return (
-    <div className="container">
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Insira seu texto aqui "
-        rows={2}
-        cols={50}
-        className="text-area"
-      />
-      <br />
-      {voices.map((voice) => (
-        <div key={voice.voice_id} className="voice-card">
-          <div className="voice-info">
-            <strong>{voice.name}</strong>
-            <div className="voice-labels">
-              <div>Category: {voice.category}</div>
-              <div>Gender: {voice.labels.gender}</div>
-              <div>Accent: {voice.labels.accent}</div>
-              <div>Age: {voice.labels.age}</div>
-              <div>Description: {voice.labels.description}</div>
-              <div>Use Case: {voice.labels.use_case}</div>
-            </div>
-          </div>
-          {text && (
-            <button
-              onClick={() => handlePlayPause(voice.voice_id)}
-              className="button"
-              disabled={loading}
+    <Paper 
+      style={{ 
+        backgroundColor: '#f7f9fc', 
+        padding: '24px', 
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+      }}
+    >
+      <Container>
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Insira seu texto aqui"
+          minRows={2}
+          maxRows={2}
+          style={{ 
+            width: '100%', 
+            padding: '12px', 
+            marginBottom: '16px', 
+            borderRadius: '8px',
+            borderColor: '#000000',
+            boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)',
+          }}
+        />
+        <VoiceFilters filters={filters} setFilters={setFilters} filterValues={filterValues} />
+        <br />
+        {filteredVoices.map((voice) => (
+          <Card key={voice.voice_id} shadow="sm" padding="lg" radius="md" withBorder>
+            <Group mb="xs" wrap="nowrap">
+              <Text fw={500}>{voice.name}</Text>
+              {!filters.category && <Badge color="blue" variant="light">{voice.category}</Badge>}
+            </Group>
+
+            <Text size="sm" color="dimmed">
+              {!filters.gender && <Badge color="pink" variant="light" mr={6}>{voice.labels.gender}</Badge>}
+              {!filters.accent && <Badge color="cyan" variant="light" mr={6}>{voice.labels.accent}</Badge>}
+              {!filters.age && <Badge color="green" variant="light" mr={6}>{voice.labels.age}</Badge>}
+              {!filters.use_case && <Badge color="orange" variant="light">{voice.labels.use_case}</Badge>}
+            </Text>
+
+            {text && (
+              <Button
+                onClick={() => handlePlayPause(voice.voice_id)}
+                variant="light"
+                color="blue"
+                fullWidth
+                mt="md"
+                radius="md"
+                disabled={loading}
+              >
+                {loading ? 'Carregando...' : (isPlaying && selectedVoiceId === voice.voice_id ? 'Pause' : 'Play')}
+              </Button>
+            )}
+
+            <Button
+              onClick={() => handlePlayPausePreview(voice.voice_id)}
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="md"
+              radius="md"
             >
-              {loading ? 'Carregando...' : (isPlaying && selectedVoiceId === voice.voice_id ? 'Pause' : 'Play')}
-            </button>
-          )}
-          <button
-            onClick={() => handlePlayPausePreview(voice.voice_id)}
-            className="button"
-          >
-            {playingPreviewId === voice.voice_id ? 'Pause Preview' : 'Play Preview'}
-          </button>
-          <audio
-            ref={(el) => { previewAudioRefs.current[voice.voice_id] = el; }}
-            src={voice.preview_url}
-            onEnded={() => setPlayingPreviewId(null)}
-            style={{ display: 'none' }}
-          />
-          <audio
-            ref={customAudioRef}
-            style={{ display: 'none' }}
-            onEnded={() => setIsPlaying(false)}
-          />
-        </div>
-      ))}
-    </div>
+              {playingPreviewId === voice.voice_id ? 'Pause Preview' : 'Play Preview'}
+            </Button>
+
+            <audio
+              ref={(el) => { previewAudioRefs.current[voice.voice_id] = el; }}
+              src={voice.preview_url}
+              onEnded={() => setPlayingPreviewId(null)}
+              style={{ display: 'none' }}
+            />
+          </Card>
+        ))}
+
+        <audio
+          ref={customAudioRef}
+          style={{ display: 'none' }}
+          onEnded={() => setIsPlaying(false)}
+        />
+      </Container>
+    </Paper>
   );
 };
 
