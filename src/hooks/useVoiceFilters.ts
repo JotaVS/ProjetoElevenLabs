@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Voice } from './index';
+import { Voice } from '../pages/index';
 
 interface Filters {
   category: string[];

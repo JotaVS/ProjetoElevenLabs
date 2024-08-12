@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, Badge, Button, Group, Text, Container, Textarea, Paper } from '@mantine/core';
-import VoiceFilters from './VoiceFilters';
-import { useVoiceFilters } from './useVoiceFilters';
+import VoiceFilters from '../components/VoiceFilters';
+import { useVoiceFilters } from '../hooks/useVoiceFilters';
 
 export interface Voice {
   voice_id: string;
